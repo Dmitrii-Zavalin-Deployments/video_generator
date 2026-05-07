@@ -14,6 +14,13 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
+      # 🔧 GLOBAL ROBOT IDENTITY + NOTES INITIALIZATION
+      - name: 🤖 Initialize Robot Identity & Notes
+        run: |
+          git config --global user.name "Automation Engine"
+          git config --global user.email "automation@yourdomain"
+          git config --global notes.rewriteRef "refs/notes/*"
+
       - name: 🐍 Set up Python 3.9
         uses: actions/setup-python@v4
         with:
@@ -156,5 +163,21 @@ jobs:
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
         run: src/upload_to_dropbox.sh
 
+      # ----------------------------------------------------------------------
+      # 🔥 NEW: Deterministic Robot Commit Block (Unified Standard)
+      # ----------------------------------------------------------------------
+      - name: 📝 Log trigger & push
+        if: always()
+        run: |
+          echo "$(date '+%Y-%m-%d %H:%M:%S'): ParaView frame generator triggered by '${{ github.actor }}' via '${{ github.event_name }}'" >> trigger.txt
 
+          git add trigger.txt
 
+          if ! git diff --cached --quiet; then
+            git commit -m "🤖 robot: ParaView frame generator trigger log"
+            git notes add -m "robot: true"
+            git push origin HEAD
+            git push origin refs/notes/* || true
+          else
+            echo "No new logs to commit."
+          fi
