@@ -4,7 +4,7 @@
 APP_KEY="${APP_KEY}"
 APP_SECRET="${APP_SECRET}"
 REFRESH_TOKEN="${REFRESH_TOKEN}"
-DROPBOX_BASE_FOLDER="/engineering_simulations_pipeline"
+DROPBOX_BASE_FOLDER="/simulators"
 
 # Path to the zipped archive
 ZIP_FILE="$GITHUB_WORKSPACE/data/testing-output-bundle.zip"

@@ -65,7 +65,7 @@ def download_files_from_dropbox(dropbox_folder, local_folder, refresh_token, cli
 
                 for entry in result.entries:
                     # Construct the relative path from the base Dropbox folder.
-                    # entry.path_lower gives the full lowercase path, e.g., "/engineering_simulations_pipeline/vtk_output/file.pvd"
+                    # entry.path_lower gives the full lowercase path, e.g., "/simulators/vtk_output/file.pvd"
                     # We need the path relative to the initial dropbox_folder, e.g., "vtk_output/file.pvd"
                     # Using os.path.relpath ensures correct path construction across OS.
                     # dropbox_folder.lower() is used for comparison as entry.path_lower is always lowercase.

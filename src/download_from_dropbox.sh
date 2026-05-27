@@ -4,7 +4,7 @@
 APP_KEY="${APP_KEY}"
 APP_SECRET="${APP_SECRET}"
 REFRESH_TOKEN="${REFRESH_TOKEN}"
-DROPBOX_FOLDER="/engineering_simulations_pipeline"  # Set Dropbox folder path
+DROPBOX_FOLDER="/simulators"  # Set Dropbox folder path
 LOCAL_FOLDER="./data/testing-input-output"  # Set local folder for downloaded files
 LOG_FILE="./dropbox_download_log.txt"
 
