@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # 🔧 GLOBAL ROBOT IDENTITY + NOTES INITIALIZATION
       - name: 🤖 Initialize Robot Identity & Notes
@@ -164,9 +166,9 @@ jobs:
         run: src/upload_to_dropbox.sh
 
       # ----------------------------------------------------------------------
-      # 🔥 NEW: Deterministic Robot Commit Block (Unified Standard)
+      # 🔥 FIXED: Deterministic Robot Commit Block
       # ----------------------------------------------------------------------
-      - name: 📝 Log trigger & push
+      - name: 📝 Log trigger & push + Sync Notes
         if: always()
         run: |
           echo "$(date '+%Y-%m-%d %H:%M:%S'): ParaView frame generator triggered by '${{ github.actor }}' via '${{ github.event_name }}'" >> trigger.txt
@@ -175,12 +177,19 @@ jobs:
 
           if ! git diff --cached --quiet; then
             git commit -m "🤖 robot: ParaView frame generator trigger log"
+            TARGET_COMMIT=$(git rev-parse HEAD)
 
-            # Inline Git Notes
-            git notes add -m "robot: true" || true
-            git push origin refs/notes/* || true
+            # 1️⃣ Fetch remote notes FIRST
+            git fetch origin refs/notes/commits:refs/notes/commits || true
 
+            # 2️⃣ Add note locally
+            git notes add -f -m "robot: true" "$TARGET_COMMIT"
+
+            # 3️⃣ Push commit
             git push origin HEAD
+
+            # 4️⃣ Force-push notes
+            git push --force origin refs/notes/commits
           else
             echo "No new logs to commit."
           fi
