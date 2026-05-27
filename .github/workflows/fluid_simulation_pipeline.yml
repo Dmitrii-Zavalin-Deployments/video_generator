@@ -175,9 +175,12 @@ jobs:
 
           if ! git diff --cached --quiet; then
             git commit -m "🤖 robot: ParaView frame generator trigger log"
-            git notes add -m "robot: true"
-            git push origin HEAD
+
+            # Inline Git Notes
+            git notes add -m "robot: true" || true
             git push origin refs/notes/* || true
+
+            git push origin HEAD
           else
             echo "No new logs to commit."
           fi
