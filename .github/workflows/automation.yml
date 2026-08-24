@@ -1,4 +1,4 @@
-name: $PROJECT_NAME
+name: Video Generator
 
 on:
   push:
