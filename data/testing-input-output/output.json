@@ -1,0 +1,12 @@
+{
+  "inputs": {
+    "input_example": "placeholder"
+  },
+  "config": {
+    "project": "placeholder_project",
+    "short_name": "placeholder_short"
+  },
+  "results": {
+    "status": "placeholder"
+  }
+}

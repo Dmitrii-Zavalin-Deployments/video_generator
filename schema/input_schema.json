@@ -1,0 +1,7 @@
+{
+  "type": "object",
+  "properties": {
+    "input_example": { "type": "string" }
+  },
+  "required": ["input_example"]
+}

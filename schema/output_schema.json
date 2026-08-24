@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "input_example": { "type": "string" }
+      },
+      "required": ["input_example"]
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "project": { "type": "string" },
+        "short_name": { "type": "string" }
+      },
+      "required": ["project", "short_name"]
+    },
+    "results": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" }
+      },
+      "required": ["status"]
+    }
+  },
+  "required": ["inputs", "config", "results"]
+}
