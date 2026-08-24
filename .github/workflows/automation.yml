@@ -235,7 +235,7 @@ jobs:
       #     # libgl1 replaces the deprecated libgl1-mesa-glx on Ubuntu 24.04+
       #     sudo apt-get install -y libgl1 xvfb libglu1-mesa
 
-      # - name: 🌊 Execute Navier–Stokes Solver (with Live Profiling)
+      # - name: 🚀 Execute main.py with Live Profiling
       #   run: |
       #     # Initialize background performance tracker to capture accurate trends
       #     rm -f /tmp/cpu_track.log /tmp/memory_profile.log
