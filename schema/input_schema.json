@@ -1,7 +1,18 @@
 {
   "type": "object",
+  "description": "Input files and resources required for the video generation process.",
   "properties": {
-    "input_example": { "type": "string" }
+    "processed_frames_zip_path": {
+      "type": "string",
+      "description": "Path to the zip archive containing the processed frames to be compiled."
+    },
+    "output_video_path": {
+      "type": "string",
+      "description": "Path where the final generated video file will be saved."
+    }
   },
-  "required": ["input_example"]
+  "required": [
+    "processed_frames_zip_path",
+    "output_video_path"
+  ]
 }

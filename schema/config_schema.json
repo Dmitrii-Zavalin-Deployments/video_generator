@@ -1,8 +1,45 @@
 {
   "type": "object",
+  "description": "Configuration settings for frame rate, resolution, encoding codec, and bitrate.",
   "properties": {
-    "project": { "type": "string" },
-    "short_name": { "type": "string" }
+    "fps": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Frames per second for the output video."
+    },
+    "resolution": {
+      "type": "object",
+      "description": "Target pixel dimensions for the output video.",
+      "properties": {
+        "width": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Video width in pixels."
+        },
+        "height": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Video height in pixels."
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ]
+    },
+    "codec": {
+      "type": "string",
+      "description": "Video codec to use for encoding (e.g., libx264, mpeg4)."
+    },
+    "bitrate": {
+      "type": "string",
+      "description": "Target bitrate for the video stream (e.g., 5M, 2000k)."
+    }
   },
-  "required": ["project", "short_name"]
+  "required": [
+    "fps",
+    "resolution",
+    "codec",
+    "bitrate"
+  ]
 }

@@ -1,28 +1,92 @@
 {
   "type": "object",
+  "description": "Root schema for the video generation task.",
   "properties": {
     "inputs": {
       "type": "object",
+      "description": "Input files and resources required for the video generation process.",
       "properties": {
-        "input_example": { "type": "string" }
+        "processed_frames_zip_path": {
+          "type": "string",
+          "description": "Path to the zip archive containing the processed frames to be compiled."
+        },
+        "output_video_path": {
+          "type": "string",
+          "description": "Path where the final generated video file will be saved."
+        }
       },
-      "required": ["input_example"]
+      "required": [
+        "processed_frames_zip_path",
+        "output_video_path"
+      ]
     },
     "config": {
       "type": "object",
+      "description": "Configuration settings for frame rate, resolution, encoding codec, and bitrate.",
       "properties": {
-        "project": { "type": "string" },
-        "short_name": { "type": "string" }
+        "fps": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Frames per second for the output video."
+        },
+        "resolution": {
+          "type": "object",
+          "description": "Target pixel dimensions for the output video.",
+          "properties": {
+            "width": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Video width in pixels."
+            },
+            "height": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Video height in pixels."
+            }
+          },
+          "required": [
+            "width",
+            "height"
+          ]
+        },
+        "codec": {
+          "type": "string",
+          "description": "Video codec to use for encoding (e.g., libx264, mpeg4)."
+        },
+        "bitrate": {
+          "type": "string",
+          "description": "Target bitrate for the video stream (e.g., 5M, 2000k)."
+        }
       },
-      "required": ["project", "short_name"]
+      "required": [
+        "fps",
+        "resolution",
+        "codec",
+        "bitrate"
+      ]
     },
     "results": {
       "type": "object",
+      "description": "Execution output details including final status and error logs if any.",
       "properties": {
-        "status": { "type": "string" }
+        "status": {
+          "type": "string",
+          "description": "Current status of the execution (e.g., success, error)."
+        },
+        "error": {
+          "type": "string",
+          "description": "Error description if the video generation fails."
+        }
       },
-      "required": ["status"]
+      "required": [
+        "status",
+        "error"
+      ]
     }
   },
-  "required": ["inputs", "config", "results"]
+  "required": [
+    "inputs",
+    "config",
+    "results"
+  ]
 }

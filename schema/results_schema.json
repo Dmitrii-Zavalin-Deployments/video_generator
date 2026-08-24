@@ -1,7 +1,18 @@
 {
   "type": "object",
+  "description": "Execution output details including final status and error logs if any.",
   "properties": {
-    "status": { "type": "string" }
+    "status": {
+      "type": "string",
+      "description": "Current status of the execution (e.g., success, error)."
+    },
+    "error": {
+      "type": "string",
+      "description": "Error description if the video generation fails."
+    }
   },
-  "required": ["status"]
+  "required": [
+    "status",
+    "error"
+  ]
 }
