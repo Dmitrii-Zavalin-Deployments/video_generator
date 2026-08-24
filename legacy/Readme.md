@@ -1,1 +1,0 @@
-# Blender Animation Automation
