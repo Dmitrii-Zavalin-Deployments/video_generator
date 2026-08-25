@@ -73,3 +73,9 @@ It ingests a ZIP archive of frames, validates all inputs via strict JSON Schemas
 - **Run:** [Detailed Execution Logs]($RUN_URL)
 - **CPU Load:** \`$CPU_LOAD\`
 - **Memory Usage:** \`$MEM_USAGE\`
+### Audit: $RUN_DATE
+- **Branch:** \`$CURRENT_BRANCH\`
+- **Status:** \`$STATUS\`
+- **Run:** [Detailed Execution Logs]($RUN_URL)
+- **CPU Load:** \`$CPU_LOAD\`
+- **Memory Usage:** \`$MEM_USAGE\`
