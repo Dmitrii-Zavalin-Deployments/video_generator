@@ -13,7 +13,7 @@
     "bitrate": "5M"
   },
   "results": {
-    "status": "error",
-    "error": "VideoWriter_fourcc() takes at most 4 arguments (7 given)"
+    "status": "success",
+    "error": ""
   }
 }
