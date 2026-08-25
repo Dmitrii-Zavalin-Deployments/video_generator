@@ -14,6 +14,6 @@
   },
   "results": {
     "status": "error",
-    "error": "No frames found in processed_frames.zip"
+    "error": "VideoWriter_fourcc() takes at most 4 arguments (7 given)"
   }
 }
