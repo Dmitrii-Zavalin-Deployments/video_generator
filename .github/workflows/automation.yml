@@ -307,11 +307,11 @@ jobs:
           # 3. Restore stashed changes
           git stash pop || true
 
-          # 4. Add the specific test folder
-          git add data/testing-input-output/
+          # 4. Add only specific generated output files
+          git add data/testing-input-output/output_video.mp4 data/testing-input-output/output.json
 
           # 5. Commit/Push with Notes
-          if [ -n "$(git status --porcelain data/testing-input-output/)" ]; then
+          if [ -n "$(git status --porcelain data/testing-input-output/output_video.mp4 data/testing-input-output/output.json)" ]; then
             git commit -m "🤖 robot b: sync testing assets [${{ job.status }}]"
             TARGET_COMMIT=$(git rev-parse HEAD)
 

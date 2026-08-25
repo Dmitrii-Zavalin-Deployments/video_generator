@@ -8,14 +8,14 @@ def run(state):
         codec = state.config["codec"]
         bitrate = state.config["bitrate"]
 
-        # Map long codec names or ensure a valid 4-character code for OpenCV
+        # Map codecs to 'avc1' (H.264) for browser and HTML5 video compatibility
         codec_mapping = {
-            "libx264": "mp4v",
-            "mpeg4": "mp4v",
-            "mp4v": "mp4v",
+            "libx264": "avc1",
+            "mpeg4": "avc1",
+            "mp4v": "avc1",
             "avc1": "avc1"
         }
-        fourcc_chars = codec_mapping.get(codec, codec if len(codec) == 4 else "mp4v")
+        fourcc_chars = codec_mapping.get(codec, codec if len(codec) == 4 else "avc1")
         fourcc = cv2.VideoWriter_fourcc(*fourcc_chars)
 
         out = cv2.VideoWriter(
