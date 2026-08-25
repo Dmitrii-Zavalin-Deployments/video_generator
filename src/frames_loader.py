@@ -1,3 +1,4 @@
+# src/frames_loader.py
 import zipfile
 from pathlib import Path
 
@@ -8,7 +9,10 @@ def run(state):
         with zipfile.ZipFile(zip_path, "r") as zf:
             zf.extractall(state.frames_dir)
 
-        for frame in sorted(state.frames_dir.glob("*.png")):
+        # Search for both .jpg and .png frames recursively to match the compressed output format
+        frame_files = list(state.frames_dir.rglob("*.jpg")) + list(state.frames_dir.rglob("*.png"))
+        
+        for frame in sorted(frame_files):
             state.frame_paths.append(frame)
 
         if not state.frame_paths:
@@ -18,4 +22,3 @@ def run(state):
     except Exception as e:
         state.results["status"] = "error"
         state.results["error"] = str(e)
-
