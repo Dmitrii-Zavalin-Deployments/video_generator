@@ -283,9 +283,10 @@ jobs:
 
       - name: 🔍 Post-Execution Artifact Verification
         run: |
-          # Verify that JSON output manifest has been deterministically compiled
+          # Verify that output video and JSON manifest have been deterministically compiled
           echo "--- Verifying Generated Output Structure ---"
           ls -l data/testing-input-output/output.json
+          ls -l data/testing-input-output/output_video.mp4
 
           # Print output manifest summary for log tracing
           head -n 30 data/testing-input-output/output.json
