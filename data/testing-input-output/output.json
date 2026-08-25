@@ -1,0 +1,19 @@
+{
+  "inputs": {
+    "processed_frames_zip_path": "data/testing-input-output/processed_frames.zip",
+    "output_video_path": "data/testing-input-output/output_video.mp4"
+  },
+  "config": {
+    "fps": 30,
+    "resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "codec": "libx264",
+    "bitrate": "5M"
+  },
+  "results": {
+    "status": "success",
+    "error": ""
+  }
+}
