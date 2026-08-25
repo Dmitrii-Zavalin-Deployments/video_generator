@@ -8,7 +8,16 @@ def run(state):
         codec = state.config["codec"]
         bitrate = state.config["bitrate"]
 
-        fourcc = cv2.VideoWriter_fourcc(*codec)
+        # Map long codec names or ensure a valid 4-character code for OpenCV
+        codec_mapping = {
+            "libx264": "mp4v",
+            "mpeg4": "mp4v",
+            "mp4v": "mp4v",
+            "avc1": "avc1"
+        }
+        fourcc_chars = codec_mapping.get(codec, codec if len(codec) == 4 else "mp4v")
+        fourcc = cv2.VideoWriter_fourcc(*fourcc_chars)
+
         out = cv2.VideoWriter(
             str(state.output_video_path),
             fourcc,
@@ -32,4 +41,3 @@ def run(state):
     except Exception as e:
         state.results["status"] = "error"
         state.results["error"] = str(e)
-
