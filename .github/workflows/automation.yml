@@ -228,58 +228,58 @@ jobs:
           chmod +x requirements.sh
           ./requirements.sh
 
-      # - name: 🌐 Install Headless Rendering Dependencies
-      #   run: |
-      #     # Establish virtual display device infrastructure and OpenGL bindings
-      #     sudo apt-get update -y
-      #     # libgl1 replaces the deprecated libgl1-mesa-glx on Ubuntu 24.04+
-      #     sudo apt-get install -y libgl1 xvfb libglu1-mesa
+      - name: 🌐 Install Headless Rendering Dependencies
+        run: |
+          # Establish virtual display device infrastructure and OpenGL bindings
+          sudo apt-get update -y
+          # libgl1 replaces the deprecated libgl1-mesa-glx on Ubuntu 24.04+
+          sudo apt-get install -y libgl1 xvfb libglu1-mesa
 
-      # - name: 🚀 Execute main.py with Live Profiling
-      #   run: |
-      #     # Initialize background performance tracker to capture accurate trends
-      #     rm -f /tmp/cpu_track.log /tmp/memory_profile.log
+      - name: 🚀 Execute main.py with Live Profiling
+        run: |
+          # Initialize background performance tracker to capture accurate trends
+          rm -f /tmp/cpu_track.log /tmp/memory_profile.log
 
-      #     echo "Starting asynchronous background compute metrics sampler..."
-      #     while true; do
-      #       # Evaluates active utilization delta (user + system space) every second
-      #       top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}' >> /tmp/cpu_track.log 2>/dev/null || true
-      #       sleep 1
-      #     done &
-      #     SAMPLER_PID=$!
+          echo "Starting asynchronous background compute metrics sampler..."
+          while true; do
+            # Evaluates active utilization delta (user + system space) every second
+            top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}' >> /tmp/cpu_track.log 2>/dev/null || true
+            sleep 1
+          done &
+          SAMPLER_PID=$!
 
-      #     INPUT_FILE="data/testing-input-output/input.json"
-      #     if [ ! -f "$INPUT_FILE" ]; then
-      #       echo "❌ CRITICAL ERROR: Input file context missing at $INPUT_FILE."
-      #       exit 1
-      #     fi
+          INPUT_FILE="data/testing-input-output/input.json"
+          if [ ! -f "$INPUT_FILE" ]; then
+            echo "❌ CRITICAL ERROR: Input file context missing at $INPUT_FILE."
+            exit 1
+          fi
 
-      #     # Run core execution module under verbose tool monitoring to record Peak Resident Set Size (RSS)
-      #     /usr/bin/time -v xvfb-run --auto-servernum python src/main.py \
-      #       --input_output_folder "${GITHUB_WORKSPACE}/data/testing-input-output/" \
-      #       --input_file_name "input.json" \
-      #       --output_file_name "output.json" 2> /tmp/memory_profile.log
+          # Run core execution module under verbose tool monitoring to record Peak Resident Set Size (RSS)
+          /usr/bin/time -v xvfb-run --auto-servernum python src/main.py \
+            --input_output_folder "${GITHUB_WORKSPACE}/data/testing-input-output/" \
+            --input_file_name "input.json" \
+            --output_file_name "output.json" 2> /tmp/memory_profile.log
 
-      #     # Unwind profile monitoring immediately post-execution 
-      #     kill $SAMPLER_PID
+          # Unwind profile monitoring immediately post-execution 
+          kill $SAMPLER_PID
 
-      #     # Standardize and isolate peak payload metric thresholds
-      #     PEAK_CPU=$(sort -n /tmp/cpu_track.log | tail -n 1)
-      #     if [ -z "$PEAK_CPU" ]; then PEAK_CPU="0.0"; fi
+          # Standardize and isolate peak payload metric thresholds
+          PEAK_CPU=$(sort -n /tmp/cpu_track.log | tail -n 1)
+          if [ -z "$PEAK_CPU" ]; then PEAK_CPU="0.0"; fi
 
-      #     # Parse Peak Memory footprint values from verbose execution dump
-      #     MAX_RSS_KB=$(grep "Maximum resident set size" /tmp/memory_profile.log | awk '{print $6}')
-      #     if [ -z "$MAX_RSS_KB" ]; then
-      #       MAX_RSS_MB=$(free -m | awk '/Mem:/ { print $3 }')
-      #     else
-      #       MAX_RSS_MB=$((MAX_RSS_KB / 1024))
-      #     fi
-      #     TOTAL_MEM_MB=$(free -m | awk '/Mem:/ { print $2 }')
+          # Parse Peak Memory footprint values from verbose execution dump
+          MAX_RSS_KB=$(grep "Maximum resident set size" /tmp/memory_profile.log | awk '{print $6}')
+          if [ -z "$MAX_RSS_KB" ]; then
+            MAX_RSS_MB=$(free -m | awk '/Mem:/ { print $3 }')
+          else
+            MAX_RSS_MB=$((MAX_RSS_KB / 1024))
+          fi
+          TOTAL_MEM_MB=$(free -m | awk '/Mem:/ { print $2 }')
 
-      #     # Inject peak thresholds directly into environment runtime variables context
-      #     echo "PEAK_COMPUTE_LOAD=${PEAK_CPU}%" >> $GITHUB_ENV
-      #     echo "PEAK_MEM_USAGE=${MAX_RSS_MB}/${TOTAL_MEM_MB}MB" >> $GITHUB_ENV
-      #     echo "✅ Profiler teardown clean. Peak CPU: ${PEAK_CPU}%, Peak Memory: ${MAX_RSS_MB}/${TOTAL_MEM_MB}MB"
+          # Inject peak thresholds directly into environment runtime variables context
+          echo "PEAK_COMPUTE_LOAD=${PEAK_CPU}%" >> $GITHUB_ENV
+          echo "PEAK_MEM_USAGE=${MAX_RSS_MB}/${TOTAL_MEM_MB}MB" >> $GITHUB_ENV
+          echo "✅ Profiler teardown clean. Peak CPU: ${PEAK_CPU}%, Peak Memory: ${MAX_RSS_MB}/${TOTAL_MEM_MB}MB"
 
       # - name: 🔍 Post-Execution Artifact Verification
       #   run: |
@@ -330,83 +330,100 @@ jobs:
       #       echo "No testing asset changes detected. Sync skipped."
       #     fi
 
-      # - name: 📊 Audit Performance Ledger & Sync
-      #   if: always()
-      #   run: |
-      #     git reset --hard HEAD
-      #     git clean -ffdx
-      #     git pull origin HEAD --rebase
+      - name: 📊 Audit Performance Ledger & Sync
+        if: always()
+        run: |
+          git reset --hard HEAD
+          git clean -ffdx
+          git pull origin HEAD --rebase
 
-      #     RUN_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-      #     STATUS="${{ job.status }}"
-      #     CURRENT_BRANCH=${GITHUB_REF##*/}
+          RUN_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          STATUS="${{ job.status }}"
+          CURRENT_BRANCH=${GITHUB_REF##*/}
 
-      #     # Parse high-fidelity metrics populated during live engine load, fallback to idle if missing
-      #     CPU_LOAD="${PEAK_COMPUTE_LOAD:-$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4 "%"}')}"
-      #     MEM_USAGE="${PEAK_MEM_USAGE:-$(free -m | awk '/Mem:/ { print $3 "/" $2 "MB" }')}"
+          # Parse high-fidelity metrics populated during live engine load, fallback to idle if missing
+          CPU_LOAD="${PEAK_COMPUTE_LOAD:-$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4 "%"}')}"
+          MEM_USAGE="${PEAK_MEM_USAGE:-$(free -m | awk '/Mem:/ { print $3 "/" $2 "MB" }')}"
 
-      #     RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
-      #     NEW_ENTRY=$(cat <<'EOF'
-      #     ### Audit: $RUN_DATE
-      #     - **Branch:** \`$CURRENT_BRANCH\`
-      #     - **Status:** \`$STATUS\`
-      #     - **Run:** [Detailed Execution Logs]($RUN_URL)
-      #     - **CPU Load:** \`$CPU_LOAD\`
-      #     - **Memory Usage:** \`$MEM_USAGE\`
-      #     EOF
-      #     )
+          NEW_ENTRY=$(cat <<'EOF'
+          ### Audit: $RUN_DATE
+          - **Branch:** \`$CURRENT_BRANCH\`
+          - **Status:** \`$STATUS\`
+          - **Run:** [Detailed Execution Logs]($RUN_URL)
+          - **CPU Load:** \`$CPU_LOAD\`
+          - **Memory Usage:** \`$MEM_USAGE\`
+          EOF
+          )
 
-      #     HEADER=$(cat <<'EOF'
-      #     # Replace this with project icon and project name
+          HEADER=$(cat <<'EOF'
+          # 🎞️ Video Generator
 
-      #     ## 🛠️ Description
-      #     Replace this with project description
+          ## 🛠️ Description
+          A deterministic post‑processing engine that assembles processed frames into a final encoded video.  
+          It ingests a ZIP archive of frames, validates all inputs via strict JSON Schemas, applies video quality and encoding parameters, and produces a reproducible output video file.
 
-      #     ### 🔄 Execution Pipeline Architecture / Output
+          ### 🔄 Execution Pipeline Architecture
 
-      #     place here the output pictures or the module execution schema
+          ```text
+          [ processed_frames.zip ] + [ config ]
+                  │
+                  ▼
+          [ Ingestion & Validation ] ──► [ State Container ]
+                                                │
+                                                ▼
+                                    [ Frames Loader ]
+                                                │
+                                                ▼
+                                    [ Video Assembler ]
+                                                │
+                                                ▼
+                                    [ State Container ]
+                                                │
+                                                ▼
+                                    [ JSON Output ] ──► [ Final Video (.mp4) ]
+          ```
 
-      #     ### 📚 Resources & Documentation
-      #     - **Tutorial/Book:** ***currently in development***
+          ### 📚 Resources & Documentation
+          - **Tutorial/Book:** ***currently in development***
 
-      #     ---
+          ---
 
-      #     ### 🧮 Performance Audit:
+          ### 🧮 Performance Audit:
+          EOF
+          )
 
-      #     EOF
-      #     )
+          if [ -f "README.md" ]; then
+              sed -n '/### Audit:/,$p' README.md > old_body.tmp
+              echo "$HEADER" > README.md
+              echo "$NEW_ENTRY" >> README.md
+              cat old_body.tmp >> README.md
+              rm old_body.tmp
+          else
+              echo "$HEADER" > README.md
+              echo "$NEW_ENTRY" >> README.md
+          fi
 
-      #     if [ -f "README.md" ]; then
-      #         sed -n '/### Audit:/,$p' README.md > old_body.tmp
-      #         echo "$HEADER" > README.md
-      #         echo "$NEW_ENTRY" >> README.md
-      #         cat old_body.tmp >> README.md
-      #         rm old_body.tmp
-      #     else
-      #         echo "$HEADER" > README.md
-      #         echo "$NEW_ENTRY" >> README.md
-      #     fi
+          git add README.md
 
-      #     git add README.md
+          if [ -n "$(git status --porcelain README.md)" ]; then
+            git commit -m "🤖 robot b: audit ledger update [${{ job.status }}] [skip ci]"
+            TARGET_COMMIT=$(git rev-parse HEAD)
 
-      #     if [ -n "$(git status --porcelain README.md)" ]; then
-      #       git commit -m "🤖 robot b: audit ledger update [${{ job.status }}] [skip ci]"
-      #       TARGET_COMMIT=$(git rev-parse HEAD)
+            # 1 Fetch remote notes
+            git fetch origin refs/notes/commits:refs/notes/commits || true
 
-      #       # 1 Fetch remote notes
-      #       git fetch origin refs/notes/commits:refs/notes/commits || true
+            # 2 Add note locally
+            git notes add -f -m "robot: true" "$TARGET_COMMIT"
 
-      #       # 2 Add note locally
-      #       git notes add -f -m "robot: true" "$TARGET_COMMIT"
-
-      #       # 3 Push commit and notes
-      #       git pull origin HEAD --rebase || echo "Rebase failed, pushing without rebase."
-      #       git push origin HEAD
-      #       git push --force origin refs/notes/commits || true
-      #     else
-      #       echo "No ledger changes."
-      #     fi
+            # 3 Push commit and notes
+            git pull origin HEAD --rebase || echo "Rebase failed, pushing without rebase."
+            git push origin HEAD
+            git push --force origin refs/notes/commits || true
+          else
+            echo "No ledger changes."
+          fi
 
       # - name: 🔍 Forensic Audit
       #   if: always()
