@@ -1,4 +1,5 @@
 import cv2
+import imageio.v3 as iio
 from pathlib import Path
 
 def run(state):
@@ -10,27 +11,31 @@ def run(state):
         # Ensure output directory exists
         Path(state.output_video_path).parent.mkdir(parents=True, exist_ok=True)
 
-        # Use pure software-safe OpenCV VideoWriter backend (mp4v)
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        out = cv2.VideoWriter(
-            str(state.output_video_path),
-            fourcc,
-            fps,
-            (width, height)
-        )
-
-        if not out.isOpened():
-            raise RuntimeError("Failed to open OpenCV VideoWriter with mp4v codec.")
-
+        # Load, convert (BGR to RGB), and resize all frames into memory
+        processed_frames = []
         for frame_path in state.frame_paths:
             frame = cv2.imread(str(frame_path))
             if frame is None:
                 continue
+            
+            # OpenCV loads as BGR; convert to RGB for standard web video encoding
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_resized = cv2.resize(frame_rgb, (width, height))
+            processed_frames.append(frame_resized)
 
-            frame = cv2.resize(frame, (width, height))
-            out.write(frame)
+        if not processed_frames:
+            raise RuntimeError("No valid frames found to assemble into video.")
 
-        out.release()
+        # Write out using imageio-ffmpeg plugin for 100% browser-compatible H.264 MP4
+        iio.imwrite(
+            str(state.output_video_path),
+            processed_frames,
+            plugin="imageio_ffmpeg",
+            fps=fps,
+            codec="libx264",
+            pixelformat="yuv420p",
+            output_params=["-movflags", "+faststart"]
+        )
 
         state.results["status"] = "success"
         state.results["error"] = ""
