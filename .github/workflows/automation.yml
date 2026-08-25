@@ -281,54 +281,54 @@ jobs:
           echo "PEAK_MEM_USAGE=${MAX_RSS_MB}/${TOTAL_MEM_MB}MB" >> $GITHUB_ENV
           echo "✅ Profiler teardown clean. Peak CPU: ${PEAK_CPU}%, Peak Memory: ${MAX_RSS_MB}/${TOTAL_MEM_MB}MB"
 
-      # - name: 🔍 Post-Execution Artifact Verification
-      #   run: |
-      #     # Verify that JSON output manifest has been deterministically compiled
-      #     echo "--- Verifying Generated Output Structure ---"
-      #     ls -l data/testing-input-output/output.json
+      - name: 🔍 Post-Execution Artifact Verification
+        run: |
+          # Verify that JSON output manifest has been deterministically compiled
+          echo "--- Verifying Generated Output Structure ---"
+          ls -l data/testing-input-output/output.json
 
-      #     # Print output manifest summary for log tracing
-      #     head -n 30 data/testing-input-output/output.json
+          # Print output manifest summary for log tracing
+          head -n 30 data/testing-input-output/output.json
       
-      # - name: 🛡 Post-Execution Schema Compliance Audit
-      #   run: |
-      #     echo "--- Running Standalone JSON Schema Verification ---"
-      #     python src/utils/validate_schema.py
+      - name: 🛡 Post-Execution Schema Compliance Audit
+        run: |
+          echo "--- Running Standalone JSON Schema Verification ---"
+          python src/utils/validate_schema.py
 
-      # - name: 💾 Sync Testing Assets to Repository
-      #   if: always()
-      #   run: |
-      #     # 1. Stash local changes (including untracked files)
-      #     git stash -u
+      - name: 💾 Sync Testing Assets to Repository
+        if: always()
+        run: |
+          # 1. Stash local changes (including untracked files)
+          git stash -u
 
-      #     # 2. Pull with '-X ours' to resolve binary conflicts
-      #     git pull origin HEAD --rebase -X ours
+          # 2. Pull with '-X ours' to resolve binary conflicts
+          git pull origin HEAD --rebase -X ours
 
-      #     # 3. Restore stashed changes
-      #     git stash pop || true
+          # 3. Restore stashed changes
+          git stash pop || true
 
-      #     # 4. Add the specific test folder
-      #     git add data/testing-input-output/
+          # 4. Add the specific test folder
+          git add data/testing-input-output/
 
-      #     # 5. Commit/Push with Notes
-      #     if [ -n "$(git status --porcelain data/testing-input-output/)" ]; then
-      #       git commit -m "🤖 robot b: sync testing assets [${{ job.status }}]"
-      #       TARGET_COMMIT=$(git rev-parse HEAD)
+          # 5. Commit/Push with Notes
+          if [ -n "$(git status --porcelain data/testing-input-output/)" ]; then
+            git commit -m "🤖 robot b: sync testing assets [${{ job.status }}]"
+            TARGET_COMMIT=$(git rev-parse HEAD)
 
-      #       # 1 Fetch remote notes FIRST
-      #       git fetch origin refs/notes/commits:refs/notes/commits || true
+            # 1 Fetch remote notes FIRST
+            git fetch origin refs/notes/commits:refs/notes/commits || true
 
-      #       # 2 Add note locally
-      #       git notes add -f -m "robot: true" "$TARGET_COMMIT"
+            # 2 Add note locally
+            git notes add -f -m "robot: true" "$TARGET_COMMIT"
 
-      #       # 3 Push commit
-      #       git push origin HEAD || echo "Push skipped: branch protected."
+            # 3 Push commit
+            git push origin HEAD || echo "Push skipped: branch protected."
 
-      #       # 4 Force-push notes
-      #       git push --force origin refs/notes/commits || true
-      #     else
-      #       echo "No testing asset changes detected. Sync skipped."
-      #     fi
+            # 4 Force-push notes
+            git push --force origin refs/notes/commits || true
+          else
+            echo "No testing asset changes detected. Sync skipped."
+          fi
 
       - name: 📊 Audit Performance Ledger & Sync
         if: always()
@@ -425,97 +425,97 @@ jobs:
             echo "No ledger changes."
           fi
 
-      # - name: 🔍 Forensic Audit
-      #   if: always()
-      #   run: |
-      #     if [[ "${{ job.status }}" == "success" ]]; then
-      #       echo "✅ All systems nominal. No anomalies detected in solver lifecycle."
-      #       cat <<'EOF' > debug/forensic_audit_validation.sh
-      #     #!/bin/bash
-      #     # Description: Automated forensic audit for Navier-Stokes solver failures.
-      #     # Status: Dormant (All systems nominal)
-      #     exit 0
-      #     EOF
-      #       chmod +x debug/forensic_audit_validation.sh
-      #       echo "🧹 Diagnostic script has been reset to Dormant mode."
-      #     else
-      #       echo "⚠️ CI Failure Detected. Initiating Deep Forensic Audit..."
-      #       echo "============================================================"
-      #       echo "ls -R output:"
-      #       ls -R || echo "output dir not found"
-      #       echo "============================================================"
-      #       echo "debug/forensic_audit_validation.sh run results:"
-      #       if [ -f "debug/forensic_audit_validation.sh" ]; then
-      #         bash debug/forensic_audit_validation.sh
-      #       else
-      #         echo "❌ Critical: Diagnostic script 'debug/forensic_audit_validation.sh' not found."
-      #       fi
-      #       exit 1
-      #     fi
+      - name: 🔍 Forensic Audit
+        if: always()
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "✅ All systems nominal. No anomalies detected in solver lifecycle."
+            cat <<'EOF' > debug/forensic_audit_validation.sh
+          #!/bin/bash
+          # Description: Automated forensic audit for Navier-Stokes solver failures.
+          # Status: Dormant (All systems nominal)
+          exit 0
+          EOF
+            chmod +x debug/forensic_audit_validation.sh
+            echo "🧹 Diagnostic script has been reset to Dormant mode."
+          else
+            echo "⚠️ CI Failure Detected. Initiating Deep Forensic Audit..."
+            echo "============================================================"
+            echo "ls -R output:"
+            ls -R || echo "output dir not found"
+            echo "============================================================"
+            echo "debug/forensic_audit_validation.sh run results:"
+            if [ -f "debug/forensic_audit_validation.sh" ]; then
+              bash debug/forensic_audit_validation.sh
+            else
+              echo "❌ Critical: Diagnostic script 'debug/forensic_audit_validation.sh' not found."
+            fi
+            exit 1
+          fi
 
-      # - name: 🧹 Sync Forensic Reset
-      #   # This only runs if the '🔍 Forensic Audit' step and tests passed
-      #   if: success()
-      #   run: |
-      #     git add debug/forensic_audit_validation.sh
-      #     if [ -n "$(git status --porcelain debug/forensic_audit_validation.sh)" ]; then
-      #       git commit -m "🤖 robot b: forensic reset [PASS]"
-      #       TARGET_COMMIT=$(git rev-parse HEAD)
+      - name: 🧹 Sync Forensic Reset
+        # This only runs if the '🔍 Forensic Audit' step and tests passed
+        if: success()
+        run: |
+          git add debug/forensic_audit_validation.sh
+          if [ -n "$(git status --porcelain debug/forensic_audit_validation.sh)" ]; then
+            git commit -m "🤖 robot b: forensic reset [PASS]"
+            TARGET_COMMIT=$(git rev-parse HEAD)
 
-      #       # 1 Fetch remote notes FIRST
-      #       git fetch origin refs/notes/commits:refs/notes/commits || true
+            # 1 Fetch remote notes FIRST
+            git fetch origin refs/notes/commits:refs/notes/commits || true
 
-      #       # 2 Add note locally
-      #       git notes add -f -m "robot: true" "$TARGET_COMMIT"
+            # 2 Add note locally
+            git notes add -f -m "robot: true" "$TARGET_COMMIT"
 
-      #       # 3 Push commit
-      #       git push origin HEAD || echo "Push skipped: concurrent push detected."
+            # 3 Push commit
+            git push origin HEAD || echo "Push skipped: concurrent push detected."
 
-      #       # 4 Force-push notes
-      #       git push --force origin refs/notes/commits || true
-      #     else
-      #       echo "Forensic script already dormant."
-      #     fi
+            # 4 Force-push notes
+            git push --force origin refs/notes/commits || true
+          else
+            echo "Forensic script already dormant."
+          fi
 
-      # - name: 🛠️ Retroactive Git Notes Corrector (All Automation Engines)
-      #   if: always()
-      #   run: |
-      #     echo "--- Starting Retroactive Git Notes Audit (All History) ---"
+      - name: 🛠️ Retroactive Git Notes Corrector (All Automation Engines)
+        if: always()
+        run: |
+          echo "--- Starting Retroactive Git Notes Audit (All History) ---"
 
-      #     # 1. Fetch remote notes first to ensure accurate state
-      #     git fetch origin refs/notes/commits:refs/notes/commits || true
+          # 1. Fetch remote notes first to ensure accurate state
+          git fetch origin refs/notes/commits:refs/notes/commits || true
 
-      #     # 2. Find all commits in history made by any Automation Engine
-      #     COMMIT_HASHES=$(git log --format="%H %an" | grep -E "Automation Engine" | awk '{print $1}')
+          # 2. Find all commits in history made by any Automation Engine
+          COMMIT_HASHES=$(git log --format="%H %an" | grep -E "Automation Engine" | awk '{print $1}')
 
-      #     # 3. Identify all active automation engines found in commit history
-      #     ACTIVE_ENGINES=$(git log --format="%an" | grep -E "Automation Engine" | sort -u | tr '\n' ', ' | sed 's/,$//')
+          # 3. Identify all active automation engines found in commit history
+          ACTIVE_ENGINES=$(git log --format="%an" | grep -E "Automation Engine" | sort -u | tr '\n' ', ' | sed 's/,$//')
 
-      #     if [ -z "$COMMIT_HASHES" ]; then
-      #       echo "No automation engine commits found in history."
-      #     else
-      #       TOTAL_COMMITS=0
-      #       ADDED_NOTES=0
+          if [ -z "$COMMIT_HASHES" ]; then
+            echo "No automation engine commits found in history."
+          else
+            TOTAL_COMMITS=0
+            ADDED_NOTES=0
 
-      #       for COMMIT in $COMMIT_HASHES; do
-      #         TOTAL_COMMITS=$((TOTAL_COMMITS + 1))
+            for COMMIT in $COMMIT_HASHES; do
+              TOTAL_COMMITS=$((TOTAL_COMMITS + 1))
 
-      #         # 4. Check if the commit already has a git note
-      #         if ! git notes show "$COMMIT" >/dev/null 2>&1; then
-      #           echo "⚠️ Missing note detected for commit: $COMMIT. Adding note..."
-      #           git notes add -f -m "robot: true" "$COMMIT"
-      #           ADDED_NOTES=$((ADDED_NOTES + 1))
-      #         fi
-      #       done
+              # 4. Check if the commit already has a git note
+              if ! git notes show "$COMMIT" >/dev/null 2>&1; then
+                echo "⚠️ Missing note detected for commit: $COMMIT. Adding note..."
+                git notes add -f -m "robot: true" "$COMMIT"
+                ADDED_NOTES=$((ADDED_NOTES + 1))
+              fi
+            done
 
-      #       echo "--------------------------------------------------"
-      #       echo "📊 Git Notes Audit Summary:"
-      #       echo "   - Active Automation Engines:       [ ${ACTIVE_ENGINES:-None} ]"
-      #       echo "   - Total Automation Commits Scanned: $TOTAL_COMMITS"
-      #       echo "   - Missing Notes Fixed & Added:      $ADDED_NOTES"
-      #       echo "--------------------------------------------------"
+            echo "--------------------------------------------------"
+            echo "📊 Git Notes Audit Summary:"
+            echo "   - Active Automation Engines:       [ ${ACTIVE_ENGINES:-None} ]"
+            echo "   - Total Automation Commits Scanned: $TOTAL_COMMITS"
+            echo "   - Missing Notes Fixed & Added:      $ADDED_NOTES"
+            echo "--------------------------------------------------"
 
-      #       # 5. Force-push the synchronized notes namespace to origin
-      #       echo "Pushing updated notes to remote..."
-      #       git push --force origin refs/notes/commits || echo "Notes push skipped or protected."
-      #     fi
+            # 5. Force-push the synchronized notes namespace to origin
+            echo "Pushing updated notes to remote..."
+            git push --force origin refs/notes/commits || echo "Notes push skipped or protected."
+          fi

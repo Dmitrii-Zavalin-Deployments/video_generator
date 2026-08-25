@@ -11,4 +11,6 @@ hypothesis>=6.103.1
 ruff>=0.9.0
 vulture>=2.9
 autoflake>=2.2.1
+
+# Video & Image Processing
 opencv-python-headless
