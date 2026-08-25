@@ -1,12 +1,19 @@
 {
   "inputs": {
-    "input_example": "placeholder"
+    "processed_frames_zip_path": "data/testing-input-output/processed_frames.zip",
+    "output_video_path": "data/testing-input-output/output_video.mp4"
   },
   "config": {
-    "project": "placeholder_project",
-    "short_name": "placeholder_short"
+    "fps": 30,
+    "resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "codec": "libx264",
+    "bitrate": "5M"
   },
   "results": {
-    "status": "placeholder"
+    "status": "error",
+    "error": "No frames found in processed_frames.zip"
   }
 }
