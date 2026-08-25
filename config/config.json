@@ -1,4 +1,9 @@
 {
-  "project": "Video Generator",
-  "short_name": "video_generator"
+  "fps": 30,
+  "resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "codec": "libx264",
+  "bitrate": "5M"
 }

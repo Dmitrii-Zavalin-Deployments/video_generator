@@ -1,3 +1,4 @@
 {
-  "input_example": "placeholder"
+  "processed_frames_zip_path": "data/testing-input-output/processed_frames.zip",
+  "output_video_path": "data/testing-input-output/output_video.mp4"
 }

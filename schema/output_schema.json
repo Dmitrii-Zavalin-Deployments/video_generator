@@ -76,11 +76,16 @@
         "error": {
           "type": "string",
           "description": "Error description if the video generation fails."
+        },
+        "date_time": {
+          "type": "string",
+          "description": "Timestamp of when the execution results were compiled in ISO 8601 format."
         }
       },
       "required": [
         "status",
-        "error"
+        "error",
+        "date_time"
       ]
     }
   },
