@@ -5,26 +5,12 @@ def run(state):
         fps = state.config["fps"]
         width = state.config["resolution"]["width"]
         height = state.config["resolution"]["height"]
-        codec = state.config["codec"]
-        bitrate = state.config["bitrate"]
 
-        # Map preferred codecs
-        codec_mapping = {
-            "libx264": "avc1",
-            "mpeg4": "mp4v",
-            "mp4v": "mp4v",
-            "avc1": "avc1"
-        }
-        primary_chars = codec_mapping.get(codec, codec if len(codec) == 4 else "avc1")
-
-        # Build a prioritized list of candidates for fallback
-        candidates = [primary_chars, "avc1", "mp4v", "XVID", "MJPG"]
-        seen = set()
-        unique_candidates = [c for c in candidates if not (c in seen or seen.add(c))]
-
-        # Robust initialization loop across candidate codecs
+        # Prioritize pure software codecs (mp4v) to prevent V4L2 hardware device errors in CI runners
+        candidates = ["mp4v", "avc1", "XVID", "MJPG"]
         out = None
-        for candidate in unique_candidates:
+
+        for candidate in candidates:
             try:
                 fourcc = cv2.VideoWriter_fourcc(*candidate)
                 temp_out = cv2.VideoWriter(
@@ -42,7 +28,7 @@ def run(state):
                 continue
 
         if out is None or not out.isOpened():
-            raise RuntimeError("Failed to initialize OpenCV VideoWriter with any available software-safe codec.")
+            raise RuntimeError("Failed to initialize OpenCV VideoWriter with any available software codec.")
 
         for frame_path in state.frame_paths:
             frame = cv2.imread(str(frame_path))
