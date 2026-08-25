@@ -8,22 +8,41 @@ def run(state):
         codec = state.config["codec"]
         bitrate = state.config["bitrate"]
 
-        # Map codecs to 'avc1' (H.264) for browser and HTML5 video compatibility
+        # Map preferred codecs
         codec_mapping = {
             "libx264": "avc1",
-            "mpeg4": "avc1",
-            "mp4v": "avc1",
+            "mpeg4": "mp4v",
+            "mp4v": "mp4v",
             "avc1": "avc1"
         }
-        fourcc_chars = codec_mapping.get(codec, codec if len(codec) == 4 else "avc1")
-        fourcc = cv2.VideoWriter_fourcc(*fourcc_chars)
+        primary_chars = codec_mapping.get(codec, codec if len(codec) == 4 else "avc1")
 
-        out = cv2.VideoWriter(
-            str(state.output_video_path),
-            fourcc,
-            fps,
-            (width, height)
-        )
+        # Build a prioritized list of candidates for fallback
+        candidates = [primary_chars, "avc1", "mp4v", "XVID", "MJPG"]
+        seen = set()
+        unique_candidates = [c for c in candidates if not (c in seen or seen.add(c))]
+
+        # Robust initialization loop across candidate codecs
+        out = None
+        for candidate in unique_candidates:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*candidate)
+                temp_out = cv2.VideoWriter(
+                    str(state.output_video_path),
+                    fourcc,
+                    fps,
+                    (width, height)
+                )
+                if temp_out.isOpened():
+                    out = temp_out
+                    break
+                else:
+                    temp_out.release()
+            except Exception:
+                continue
+
+        if out is None or not out.isOpened():
+            raise RuntimeError("Failed to initialize OpenCV VideoWriter with any available software-safe codec.")
 
         for frame_path in state.frame_paths:
             frame = cv2.imread(str(frame_path))
