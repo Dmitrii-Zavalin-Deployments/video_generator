@@ -1,0 +1,18 @@
+{
+  "inputs": {
+    "processed_frames_zip_path": "data/testing-input-output/processed_frames.zip",
+    "output_video_path": "data/testing-input-output/output_video.mp4"
+  },
+  "config": {
+    "fps": 30,
+    "resolution": {
+      "width": 1080,
+      "height": 1920
+    }
+  },
+  "results": {
+    "status": "success",
+    "error": "",
+    "date_time": "2026-08-25T12:16:10.678979+00:00"
+  }
+}
