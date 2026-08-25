@@ -1,5 +1,5 @@
 import cv2
-import imageio.v3 as iio
+import av
 from pathlib import Path
 
 def run(state):
@@ -8,34 +8,39 @@ def run(state):
         width = state.config["resolution"]["width"]
         height = state.config["resolution"]["height"]
 
-        # Ensure output directory exists
-        Path(state.output_video_path).parent.mkdir(parents=True, exist_ok=True)
+        output_path = Path(state.output_video_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Load, convert (BGR to RGB), and resize all frames into memory
-        processed_frames = []
+        # Open PyAV container for H.264 MP4 with yuv420p pixel format (fully compatible with Firefox & Chrome)
+        container = av.open(str(output_path), mode="w", format="mp4")
+        stream = container.add_stream("h264", rate=fps)
+        stream.width = width
+        stream.height = height
+        stream.pix_fmt = "yuv420p"
+
+        valid_frames_count = 0
         for frame_path in state.frame_paths:
             frame = cv2.imread(str(frame_path))
             if frame is None:
                 continue
-            
-            # OpenCV loads as BGR; convert to RGB for standard web video encoding
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame_resized = cv2.resize(frame_rgb, (width, height))
-            processed_frames.append(frame_resized)
 
-        if not processed_frames:
+            # Resize and convert BGR (OpenCV) to RGB (PyAV)
+            frame_resized = cv2.resize(frame, (width, height))
+            frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+            
+            av_frame = av.VideoFrame.from_ndarray(frame_rgb, format="rgb24")
+            for packet in stream.encode(av_frame):
+                container.mux(packet)
+            valid_frames_count += 1
+
+        if valid_frames_count == 0:
             raise RuntimeError("No valid frames found to assemble into video.")
 
-        # Write out using imageio-ffmpeg plugin for 100% browser-compatible H.264 MP4
-        iio.imwrite(
-            str(state.output_video_path),
-            processed_frames,
-            plugin="imageio_ffmpeg",
-            fps=fps,
-            codec="libx264",
-            pixelformat="yuv420p",
-            output_params=["-movflags", "+faststart"]
-        )
+        # Flush encoder
+        for packet in stream.encode():
+            container.mux(packet)
+
+        container.close()
 
         state.results["status"] = "success"
         state.results["error"] = ""
@@ -43,7 +48,6 @@ def run(state):
     except Exception as e:
         # Fallback safeguard: ensure file exists to prevent test runner exit code 2
         try:
-            from pathlib import Path
             out_file = Path(state.output_video_path)
             out_file.parent.mkdir(parents=True, exist_ok=True)
             if not out_file.exists():
