@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "description": "Configuration settings for frame rate, resolution, encoding codec, and bitrate.",
+  "description": "Configuration settings for frame rate",
   "properties": {
     "fps": {
       "type": "number",
