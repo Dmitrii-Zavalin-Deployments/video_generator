@@ -6,8 +6,8 @@
   "config": {
     "fps": 30,
     "resolution": {
-      "width": 1920,
-      "height": 1080
+      "width": 1080,
+      "height": 1920
     },
     "codec": "libx264",
     "bitrate": "5M"
@@ -15,6 +15,6 @@
   "results": {
     "status": "success",
     "error": "",
-    "date_time": "2026-08-25T11:25:29.422537+00:00"
+    "date_time": "2026-08-25T12:04:34.228855+00:00"
   }
 }
