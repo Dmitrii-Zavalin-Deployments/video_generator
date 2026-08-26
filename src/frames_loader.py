@@ -1,6 +1,6 @@
 # src/frames_loader.py
 import zipfile
-from pathlib import Path
+
 
 def run(state):
     zip_path = state.inputs["processed_frames_zip_path"]

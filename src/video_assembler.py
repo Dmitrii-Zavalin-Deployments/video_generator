@@ -1,6 +1,8 @@
-import cv2
-import av
 from pathlib import Path
+
+import av
+import cv2
+
 
 def run(state):
     try:
