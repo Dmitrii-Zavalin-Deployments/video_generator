@@ -91,5 +91,5 @@ def main():
     logger.info("Pipeline execution completed successfully. Writing final output to: %s", output_json_path)
     state.write_output_json(output_json_path)
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
