@@ -1,7 +1,5 @@
 # tests/test_frames_loader.py
 import zipfile
-from pathlib import Path
-import pytest
 
 from frames_loader import run
 
