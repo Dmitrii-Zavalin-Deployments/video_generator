@@ -32,12 +32,11 @@ def test_pipeline_end_to_end(test_pipeline_dir):
     sys.argv = test_args
 
     log_file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_file_path, "w") as log_file:
-        with contextlib.redirect_stderr(log_file):
-            try:
-                main()
-            finally:
-                sys.argv = original_argv
+    with open(log_file_path, "w") as log_file, contextlib.redirect_stderr(log_file):
+        try:
+            main()
+        finally:
+            sys.argv = original_argv
 
     # 1. Verify output JSON payload exists and reflects complete success
     output_json_path = test_pipeline_dir / output_file_name
