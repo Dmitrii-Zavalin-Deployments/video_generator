@@ -46,6 +46,6 @@ class State:
             with open(output_path, "w") as f:
                 json.dump(self.to_output_json(), f, indent=2)
             logger.info("Successfully wrote output JSON payload.")
-        except (OSError, TypeError, ValueError) as e:
+        except (OSError, TypeError, ValueError):
             logger.exception("Failed to write output JSON to %s", output_path)
             raise
