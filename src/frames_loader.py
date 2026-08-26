@@ -19,6 +19,6 @@ def run(state):
             state.results["status"] = "error"
             state.results["error"] = "No frames found in processed_frames.zip"
 
-    except Exception as e:
+    except (OSError, ValueError, KeyError, RuntimeError) as e:
         state.results["status"] = "error"
         state.results["error"] = str(e)

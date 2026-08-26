@@ -79,7 +79,7 @@ def run(state):
         state.results["status"] = "success"
         state.results["error"] = ""
 
-    except Exception as e:
+    except (OSError, ValueError, KeyError, RuntimeError) as e:
         # Fallback safeguard: ensure file exists to prevent test runner exit code 2
         try:
             target_path = video_path_str if 'video_path_str' in locals() and video_path_str else getattr(state, "output_video_path", None)
