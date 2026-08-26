@@ -9,57 +9,57 @@ on:
     types: [artifact_driven_simulation_engine]
 
 jobs:
-  # verification_tests:
-  #   name: "📋 Verification Tests"
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     PYTHONPATH: ${{ github.workspace }}
-  #     FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  #     # Define the 'Gold Standard' test command here (e.g. # pytest -s tests/ -vv --cov=src --cov-report=term-missing)
-  #     TEST_COMMAND: "pytest -s tests/ -vv --cov=src --cov-report=term-missing"
+  verification_tests:
+    name: "📋 Verification Tests"
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      # Define the 'Gold Standard' test command here (e.g. # pytest -s tests/ -vv --cov=src --cov-report=term-missing)
+      TEST_COMMAND: "pytest -s tests/ -vv --cov=src --cov-report=term-missing"
 
-  #   steps:
-  #     - name: 🗂️ Checkout Repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+    steps:
+      - name: 🗂️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: 🌐 Fix APT Mirrors
-  #       run: |
-  #         # Prevent runner hangs on Azure regional mirrors globally for the job
-  #         sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list || true
+      - name: 🌐 Fix APT Mirrors
+        run: |
+          # Prevent runner hangs on Azure regional mirrors globally for the job
+          sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list || true
 
-  #     # 🔧 ROBOT A IDENTITY + NOTES INITIALIZATION
-  #     - name: 🤖 Initialize Robot A Identity & Notes
-  #       run: |
-  #         # Normalize branch name for safe use in email (replace "/" with "-")
-  #         BRANCH_SAFE="${GITHUB_REF_NAME//\//-}"
+      # 🔧 ROBOT A IDENTITY + NOTES INITIALIZATION
+      - name: 🤖 Initialize Robot A Identity & Notes
+        run: |
+          # Normalize branch name for safe use in email (replace "/" with "-")
+          BRANCH_SAFE="${GITHUB_REF_NAME//\//-}"
 
-  #         # Set dynamic Robot A identity per branch
-  #         git config --global user.name "Automation Engine A (${BRANCH_SAFE})"
-  #         git config --global user.email "automation_a+${BRANCH_SAFE}@yourdomain"
+          # Set dynamic Robot A identity per branch
+          git config --global user.name "Automation Engine A (${BRANCH_SAFE})"
+          git config --global user.email "automation_a+${BRANCH_SAFE}@yourdomain"
 
-  #         # Ensure Git Notes are rewritten and preserved
-  #         git config --global notes.rewriteRef "refs/notes/*"
+          # Ensure Git Notes are rewritten and preserved
+          git config --global notes.rewriteRef "refs/notes/*"
 
-  #     - name: 🐍 Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.11"
-  #         cache: 'pip'
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
 
-  #     - name: 📦 Provision Environment Layers & Build via Requirements
-  #       run: |
-  #         python3 -m pip install --upgrade pip
-  #         chmod +x requirements.sh
-  #         ./requirements.sh
+      - name: 📦 Provision Environment Layers & Build via Requirements
+        run: |
+          python3 -m pip install --upgrade pip
+          chmod +x requirements.sh
+          ./requirements.sh
 
-  #     - name: 🌐 Install Headless Rendering Dependencies
-  #       run: |
-  #         # Establish virtual display device infrastructure and OpenGL bindings
-  #         sudo apt-get update -y
-  #         # libgl1 replaces the deprecated libgl1-mesa-glx on Ubuntu 24.04+
-  #         sudo apt-get install -y libgl1 xvfb libglu1-mesa
+      - name: 🌐 Install Headless Rendering Dependencies
+        run: |
+          # Establish virtual display device infrastructure and OpenGL bindings
+          sudo apt-get update -y
+          # libgl1 replaces the deprecated libgl1-mesa-glx on Ubuntu 24.04+
+          sudo apt-get install -y libgl1 xvfb libglu1-mesa
 
   #     - name: 🧪 Execute C++, Python Bridge Tests, and Coverage
   #       run: |
@@ -184,7 +184,7 @@ jobs:
 
   validation_tests:
     name: "🔬 Validation Tests"
-    # needs: verification_tests
+    needs: verification_tests
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: ${{ github.workspace }}
