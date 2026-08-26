@@ -6,7 +6,24 @@ It ingests a ZIP archive of frames, validates all inputs via strict JSON Schemas
 
 ### 🔄 Execution Pipeline Architecture
 
-
+```text
+[ processed_frames.zip ] + [ config ]
+        │
+        ▼
+[ Ingestion & Validation ] ──► [ State Container ]
+                                      │
+                                      ▼
+                          [ Frames Loader ]
+                                      │
+                                      ▼
+                          [ Video Assembler ]
+                                      │
+                                      ▼
+                          [ State Container ]
+                                      │
+                                      ▼
+                          [ JSON Output ] ──► [ Final Video (.mp4) ]
+```
 
 ### 📚 Resources & Documentation
 - **Tutorial/Book:** ***currently in development***
@@ -14,6 +31,12 @@ It ingests a ZIP archive of frames, validates all inputs via strict JSON Schemas
 ---
 
 ### 🧮 Performance Audit:
+### Audit: 2026-08-26 03:27:42 UTC
+- **Branch:** `main`
+- **Status:** `success`
+- **Run:** [Detailed Execution Logs](https://github.com/Dmitrii-Zavalin-Deployments/video_generator/actions/runs/32926420839)
+- **CPU Load:** `81.4%`
+- **Memory Usage:** `1362/15989MB`
 ### Audit: 2026-08-26 03:23:27 UTC
 - **Branch:** `main`
 - **Status:** `success`
