@@ -340,7 +340,7 @@ jobs:
           EOF
           )
 
-          HEADER=$(cat <<EOF
+          HEADER=$(cat <<'EOF'
           # 🎞️ Video Generator
 
           ## 🛠️ Description
