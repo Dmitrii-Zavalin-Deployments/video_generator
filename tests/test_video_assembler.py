@@ -163,7 +163,7 @@ def test_video_assembler_none_config_initialization(tmp_path):
 
 
 def test_video_assembler_stream_encode_yields_packets(tmp_path, monkeypatch):
-    """Test encoding loop packet muxing by forcing stream.encode to yield packets during frame iteration (covers line 83)."""
+    """Test encoding loop packet muxing by mocking av.open to yield packets during iteration (covers line 83)."""
     img_path = tmp_path / "frame_001.jpg"
     img = np.zeros((120, 160, 3), dtype=np.uint8)
     cv2.imwrite(str(img_path), img)
@@ -178,20 +178,24 @@ def test_video_assembler_stream_encode_yields_packets(tmp_path, monkeypatch):
     class MockPacket:
         pass
 
-    original_add_stream = av.Container.add_stream
-
-    def mock_add_stream(self, *args, **kwargs):
-        stream = original_add_stream(self, *args, **kwargs)
-        original_encode = stream.encode
-        def mock_encode(frame=None):
+    class MockStream:
+        width = 0
+        height = 0
+        pix_fmt = ""
+        def encode(self, frame=None):
             if frame is not None:
                 return [MockPacket()]
-            return original_encode()
-        stream.encode = mock_encode
-        return stream
+            return []
 
-    monkeypatch.setattr(av.Container, "add_stream", mock_add_stream)
-    monkeypatch.setattr(av.Container, "mux", lambda self, pkt: None)
+    class MockContainer:
+        def add_stream(self, codec_name, rate=None):
+            return MockStream()
+        def mux(self, packet):
+            pass
+        def close(self):
+            pass
+
+    monkeypatch.setattr(av, "open", lambda *args, **kwargs: MockContainer())
 
     run(state)
     assert state.results["status"] == "success"
