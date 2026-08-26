@@ -1,8 +1,8 @@
 # tests/test_video_assembler.py
 from pathlib import Path
+
 import cv2
 import numpy as np
-import pytest
 
 from video_assembler import run
 
