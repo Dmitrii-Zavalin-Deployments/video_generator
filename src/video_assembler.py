@@ -93,7 +93,7 @@ def run(state):
         state.results["error"] = ""
 
     except (OSError, ValueError, KeyError, RuntimeError) as e:
-        logger.exception("Exception encountered during video assembly: %s", e)
+        logger.exception("Exception encountered during video assembly")
         # Fallback safeguard: ensure file exists to prevent test runner exit code 2
         try:
             target_path = video_path_str if 'video_path_str' in locals() and video_path_str else getattr(state, "output_video_path", None)
