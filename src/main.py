@@ -27,7 +27,8 @@ def main():
     # Configure root logging for clean output in GitHub Actions / CLI executions
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        force=True
     )
 
     parser = argparse.ArgumentParser(description="Video generator pipeline orchestrator.")
