@@ -32,6 +32,6 @@ def run(state):
             state.results["error"] = ""
 
     except (OSError, ValueError, KeyError, RuntimeError) as e:
-        logger.error("Exception encountered while loading frames: %s", e, exc_info=True)
+        logger.exception("Exception encountered while loading frames: %s", e)
         state.results["status"] = "error"
         state.results["error"] = str(e)

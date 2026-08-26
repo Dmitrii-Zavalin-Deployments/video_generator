@@ -51,7 +51,7 @@ def main():
         input_data = load_json(input_json_path)
         config_data = load_json(config_json_path)
     except (OSError, json.JSONDecodeError) as e:
-        logger.error("Failed to load input or configuration JSON files: %s", e, exc_info=True)
+        logger.exception("Failed to load input or configuration JSON files: %s", e)
         raise
 
     logger.info("Validating input data and configuration against schemas...")
