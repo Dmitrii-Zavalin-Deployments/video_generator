@@ -136,3 +136,47 @@ def test_video_assembler_fallback_safeguard_oserror(tmp_path, monkeypatch):
 
     assert state.results["status"] == "error"
     assert "No frame paths provided" in state.results["error"]
+
+def test_video_assembler_none_config_initialization(tmp_path):
+    """Test that when state.config is None, it gets initialized to a dictionary (covers line 60)."""
+    img_path = tmp_path / "frame_001.jpg"
+    img = np.zeros((120, 160, 3), dtype=np.uint8)
+    cv2.imwrite(str(img_path), img)
+
+    out_video = tmp_path / "output_none_config.mp4"
+    state = DummyState(
+        inputs={"fps": 30, "output_video_path": str(out_video)},
+        config=None,  # Explicitly None to trigger line 60
+        frame_paths=[img_path]
+    )
+
+    run(state)
+
+    assert state.results["status"] == "success"
+    assert isinstance(state.config, dict)
+    assert "resolution" in state.config
+
+
+def test_video_assembler_multiple_frames_packet_muxing(tmp_path):
+    """Test encoding multiple frames so that stream.encode yields active packets during the loop (covers line 83)."""
+    img_path1 = tmp_path / "frame_001.jpg"
+    img_path2 = tmp_path / "frame_002.jpg"
+    img_path3 = tmp_path / "frame_003.jpg"
+    
+    img = np.zeros((120, 160, 3), dtype=np.uint8)
+    cv2.imwrite(str(img_path1), img)
+    cv2.imwrite(str(img_path2), img)
+    cv2.imwrite(str(img_path3), img)
+
+    out_video = tmp_path / "output_multi_frames.mp4"
+    state = DummyState(
+        inputs={"fps": 30, "output_video_path": str(out_video)},
+        config={},
+        frame_paths=[img_path1, img_path2, img_path3]  # Multiple frames ensure encoder delay yields packets during loop
+    )
+
+    run(state)
+
+    assert state.results["status"] == "success"
+    assert out_video.exists()
+    assert out_video.stat().st_size > 0
