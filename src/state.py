@@ -21,7 +21,7 @@ class State:
 
         self.base_dir = Path(input_output_folder)
         self.frames_dir = self.base_dir / "frames"
-        self.frames_dir.mkdir(exist_ok=True)
+        self.frames_dir.mkdir(parents=True, exist_ok=True)
         logger.debug("Frames directory verified/created at: %s", self.frames_dir)
 
         self.frame_paths = []

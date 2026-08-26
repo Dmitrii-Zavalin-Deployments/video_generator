@@ -27,9 +27,9 @@ def test_video_assembler_success_inputs_fps_and_config_path(tmp_path):
     state = DummyState(
         inputs={"fps": 24},  # fps in inputs (covers lines 18-19)
         config={"output_video_path": str(out_video)},  # path in config (covers lines 30-31)
-        frame_paths=[img_path]
+        frame_paths=[img_path],
+        output_video_path=str(out_video)
     )
-    state.config = None  # Force config to None to test state.config = {} initialization (covers line 60)
 
     run(state)
 
