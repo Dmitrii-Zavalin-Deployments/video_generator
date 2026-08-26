@@ -1,5 +1,6 @@
 import json
 import zipfile
+
 import cv2
 import numpy as np
 import pytest
