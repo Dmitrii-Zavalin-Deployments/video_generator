@@ -1,10 +1,15 @@
+# src/video_assembler.py
+import logging
 from pathlib import Path
 
 import av
 import cv2
 
+logger = logging.getLogger(__name__)
+
 
 def run(state):
+    logger.info("Starting video assembly pipeline.")
     try:
         # No-Default Policy: Retrieve 'fps' from config or inputs; raise deterministic error if missing from both
         fps = None
@@ -15,6 +20,8 @@ def run(state):
         
         if fps is None:
             raise ValueError("Required property 'fps' is missing from both config.json and input.json.")
+        
+        logger.debug("Resolved frame rate (fps): %s", fps)
 
         # No-Default Policy: Retrieve output video path across inputs and config
         video_path_str = None
@@ -30,6 +37,7 @@ def run(state):
 
         output_path = Path(video_path_str)
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        logger.debug("Output video path resolved to: %s", output_path)
 
         # Load frames and dynamically capture native resolution from the first valid frame
         processed_frames = []
@@ -39,9 +47,11 @@ def run(state):
         if not frame_paths:
             raise ValueError("No frame paths provided in state.")
 
+        logger.info("Processing %d candidate frame path(s)...", len(frame_paths))
         for frame_path in frame_paths:
             frame = cv2.imread(str(frame_path))
             if frame is None:
+                logger.warning("Failed to load frame with OpenCV from path: %s", frame_path)
                 continue
 
             if native_width is None or native_height is None:
@@ -49,12 +59,14 @@ def run(state):
                 if not hasattr(state, "config") or state.config is None:
                     state.config = {}
                 state.config["resolution"] = {"width": native_width, "height": native_height}
+                logger.info("Captured native video resolution: %dx%d", native_width, native_height)
 
             processed_frames.append(frame)
 
         if not processed_frames or native_width is None or native_height is None:
             raise RuntimeError("No valid frames found to assemble into video.")
 
+        logger.info("Opening PyAV container for encoding at: %s", output_path)
         # Open PyAV container using exact native frame dimensions (eliminating aspect ratio distortion)
         container = av.open(str(output_path), mode="w", format="mp4")
         stream = container.add_stream("h264", rate=fps)
@@ -75,11 +87,13 @@ def run(state):
             container.mux(packet)
 
         container.close()
+        logger.info("Successfully encoded and finalized video assembly.")
 
         state.results["status"] = "success"
         state.results["error"] = ""
 
     except (OSError, ValueError, KeyError, RuntimeError) as e:
+        logger.error("Exception encountered during video assembly: %s", e, exc_info=True)
         # Fallback safeguard: ensure file exists to prevent test runner exit code 2
         try:
             target_path = video_path_str if 'video_path_str' in locals() and video_path_str else getattr(state, "output_video_path", None)
@@ -88,7 +102,9 @@ def run(state):
                 out_file.parent.mkdir(parents=True, exist_ok=True)
                 if not out_file.exists():
                     out_file.touch()
-        except Exception:
-            pass
+                    logger.warning("Fallback safeguard: touched empty output file at %s", out_file)
+        except OSError as fallback_err:
+            logger.warning("Fallback safeguard failed to touch output file: %s", fallback_err)
+
         state.results["status"] = "error"
         state.results["error"] = str(e)
