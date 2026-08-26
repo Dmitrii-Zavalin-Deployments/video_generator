@@ -50,7 +50,7 @@ def main():
     try:
         input_data = load_json(input_json_path)
         config_data = load_json(config_json_path)
-    except (OSError, json.JSONDecodeError) as e:
+    except (OSError, json.JSONDecodeError):
         logger.exception("Failed to load input or configuration JSON files")
         raise
 
