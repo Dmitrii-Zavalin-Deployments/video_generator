@@ -104,65 +104,65 @@ jobs:
           echo "Rule 2 (Zero-Debt Mandate) violation: Delete unused code before merging."
           exit 1
 
-  #     - name: 🧪 Run Logic & Scientific Verification
-  #       run: |
-  #         echo "🚀 Initiating: $TEST_COMMAND inside virtual frame buffer"
-  #         xvfb-run --auto-servernum $TEST_COMMAND
+      - name: 🧪 Run Logic & Scientific Verification
+        run: |
+          echo "🚀 Initiating: $TEST_COMMAND inside virtual frame buffer"
+          xvfb-run --auto-servernum $TEST_COMMAND
 
-  #     - name: 🔍 Forensic Audit
-  #       if: always()
-  #       run: |
-  #         if [[ "${{ job.status }}" == "success" ]]; then
-  #           echo "✅ All systems nominal. No anomalies detected in solver lifecycle."
-  #           cat <<'EOF' > debug/forensic_audit_verification.sh
-  #         #!/bin/bash
-  #         # Description: Automated forensic audit for Navier-Stokes solver failures.
-  #         # Status: Dormant (All systems nominal)
-  #         exit 0
-  #         EOF
-  #           chmod +x debug/forensic_audit_verification.sh
-  #           echo "🧹 Diagnostic script has been reset to Dormant mode."
-  #         else
-  #           echo "⚠️ CI Failure Detected. Initiating Deep Forensic Audit..."
-  #           echo "============================================================"
-  #           echo "ls -R output:"
-  #           ls -R || echo "output dir not found"
-  #           echo "============================================================"
-  #           echo "debug/forensic_audit_verification.sh run results:"
-  #           if [ -f "debug/forensic_audit_verification.sh" ]; then
-  #             bash debug/forensic_audit_verification.sh
-  #           else
-  #             echo "❌ Critical: Diagnostic script 'debug/forensic_audit_verification.sh' not found."
-  #           fi
-  #           # echo "============================================================"
-  #           # echo "📉 RE-RUNNING FAILED TEST FOR FINAL SIGNAL"
-  #           # xvfb-run --auto-servernum $TEST_COMMAND || true
-  #           exit 1
-  #         fi
+      - name: 🔍 Forensic Audit
+        if: always()
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "✅ All systems nominal. No anomalies detected in solver lifecycle."
+            cat <<'EOF' > debug/forensic_audit_verification.sh
+          #!/bin/bash
+          # Description: Automated forensic audit for Navier-Stokes solver failures.
+          # Status: Dormant (All systems nominal)
+          exit 0
+          EOF
+            chmod +x debug/forensic_audit_verification.sh
+            echo "🧹 Diagnostic script has been reset to Dormant mode."
+          else
+            echo "⚠️ CI Failure Detected. Initiating Deep Forensic Audit..."
+            echo "============================================================"
+            echo "ls -R output:"
+            ls -R || echo "output dir not found"
+            echo "============================================================"
+            echo "debug/forensic_audit_verification.sh run results:"
+            if [ -f "debug/forensic_audit_verification.sh" ]; then
+              bash debug/forensic_audit_verification.sh
+            else
+              echo "❌ Critical: Diagnostic script 'debug/forensic_audit_verification.sh' not found."
+            fi
+            # echo "============================================================"
+            # echo "📉 RE-RUNNING FAILED TEST FOR FINAL SIGNAL"
+            # xvfb-run --auto-servernum $TEST_COMMAND || true
+            exit 1
+          fi
 
-  #     - name: 🧹 Sync Forensic Reset
-  #       # This only runs if the '🔍 Forensic Audit' step and tests passed
-  #       if: success()
-  #       run: |
-  #         git add debug/forensic_audit_verification.sh
-  #         if [ -n "$(git status --porcelain debug/forensic_audit_verification.sh)" ]; then
-  #           git commit -m "🤖 robot a: forensic reset [PASS]"
-  #           TARGET_COMMIT=$(git rev-parse HEAD)
+      - name: 🧹 Sync Forensic Reset
+        # This only runs if the '🔍 Forensic Audit' step and tests passed
+        if: success()
+        run: |
+          git add debug/forensic_audit_verification.sh
+          if [ -n "$(git status --porcelain debug/forensic_audit_verification.sh)" ]; then
+            git commit -m "🤖 robot a: forensic reset [PASS]"
+            TARGET_COMMIT=$(git rev-parse HEAD)
 
-  #           # 1 Fetch remote notes FIRST
-  #           git fetch origin refs/notes/commits:refs/notes/commits || true
+            # 1 Fetch remote notes FIRST
+            git fetch origin refs/notes/commits:refs/notes/commits || true
 
-  #           # 2 Add note locally
-  #           git notes add -f -m "robot: true" "$TARGET_COMMIT"
+            # 2 Add note locally
+            git notes add -f -m "robot: true" "$TARGET_COMMIT"
 
-  #           # 3 Push commit
-  #           git push origin HEAD || echo "Push skipped: concurrent push detected."
+            # 3 Push commit
+            git push origin HEAD || echo "Push skipped: concurrent push detected."
 
-  #           # 4 Force-push notes
-  #           git push --force origin refs/notes/commits || true
-  #         else
-  #           echo "Forensic script already dormant."
-  #         fi
+            # 4 Force-push notes
+            git push --force origin refs/notes/commits || true
+          else
+            echo "Forensic script already dormant."
+          fi
 
   validation_tests:
     name: "🔬 Validation Tests"
