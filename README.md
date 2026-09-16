@@ -31,6 +31,12 @@ It ingests a ZIP archive of frames, validates all inputs via strict JSON Schemas
 ---
 
 ### 🧮 Performance Audit:
+### Audit: 2026-09-16 14:25:31 UTC
+- **Branch:** `main`
+- **Status:** `success`
+- **Run:** [Detailed Execution Logs](https://github.com/Dmitrii-Zavalin-Deployments/video_generator/actions/runs/35108296987)
+- **CPU Load:** `79.5%`
+- **Memory Usage:** `1374/15989MB`
 ### Audit: 2026-09-16 14:25:06 UTC
 - **Branch:** `main`
 - **Status:** `success`
