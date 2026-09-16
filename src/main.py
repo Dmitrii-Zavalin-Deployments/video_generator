@@ -2,8 +2,8 @@
 import argparse
 import json
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from jsonschema import ValidationError, validate
 
