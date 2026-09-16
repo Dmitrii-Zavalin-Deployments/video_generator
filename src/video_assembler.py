@@ -2,15 +2,18 @@
 import logging
 from pathlib import Path
 
-import av
-import cv2
-
 logger = logging.getLogger(__name__)
 
 
 def run(state):
     logger.info("Starting video assembly pipeline.")
     try:
+        try:
+            import av
+            import cv2
+        except ImportError as e:
+            raise ImportError(f"Required video processing dependency missing: {e}")
+
         # No-Default Policy: Retrieve 'fps' from config or inputs; raise deterministic error if missing from both
         fps = None
         if hasattr(state, "config") and state.config and "fps" in state.config:
@@ -92,7 +95,7 @@ def run(state):
         state.results["status"] = "success"
         state.results["error"] = ""
 
-    except (OSError, ValueError, KeyError, RuntimeError) as e:
+    except (OSError, ValueError, KeyError, RuntimeError, ImportError) as e:
         logger.exception("Exception encountered during video assembly")
         # Fallback safeguard: ensure file exists to prevent test runner exit code 2
         try:

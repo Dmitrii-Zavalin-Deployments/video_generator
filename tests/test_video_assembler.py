@@ -199,3 +199,28 @@ def test_video_assembler_stream_encode_yields_packets(tmp_path, monkeypatch):
 
     run(state)
     assert state.results["status"] == "success"
+
+
+def test_video_assembler_import_error_handling(tmp_path, monkeypatch):
+    """Test that missing optional/binary dependencies (ImportError) are handled gracefully (covers ImportError branch)."""
+    out_video = tmp_path / "out.mp4"
+    state = DummyState(
+        inputs={"fps": 30, "output_video_path": str(out_video)},
+        config={},
+        frame_paths=[]
+    )
+
+    import builtins
+    original_import = builtins.__import__
+
+    def mock_import(name, *args, **kwargs):
+        if name == "av":
+            raise ImportError("No module named 'av'")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", mock_import)
+
+    run(state)
+
+    assert state.results["status"] == "error"
+    assert "Required video processing dependency missing" in state.results["error"]
