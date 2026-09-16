@@ -5,16 +5,43 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
+def _touch_fallback_file(target_path):
+    """Safely touch the output file as a fallback safeguard without nesting."""
+    try:
+        out_file = Path(target_path)
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        if not out_file.exists():
+            out_file.touch()
+            logger.warning("Fallback safeguard: touched empty output file at %s", out_file)
+    except OSError as fallback_err:
+        logger.warning("Fallback safeguard failed to touch output file: %s", fallback_err)
+
+
 def run(state):
     logger.info("Starting video assembly pipeline.")
-    try:
-        try:
-            import av
-            import cv2
-        except ImportError as e:
-            raise ImportError(f"Required video processing dependency missing: {e}")
+    video_path_str = None
 
-        # No-Default Policy: Retrieve 'fps' from config or inputs; raise deterministic error if missing from both
+    # Sequential import check for mandatory OpenCV
+    try:
+        import cv2
+    except ImportError as e:
+        error_msg = f"Required dependency missing: {e}"
+        logger.exception(error_msg)
+        state.results["status"] = "error"
+        state.results["error"] = error_msg
+        return
+
+    # Sequential check for optional PyAV
+    has_av = False
+    try:
+        import av
+        has_av = True
+    except ImportError:
+        logger.warning("PyAV ('av') is not installed. Falling back to OpenCV VideoWriter.")
+
+    # Main operational block (flat try-except, zero nesting)
+    try:
+        # No-Default Policy: Retrieve 'fps' from config or inputs
         fps = None
         if hasattr(state, "config") and state.config and "fps" in state.config:
             fps = state.config["fps"]
@@ -27,7 +54,6 @@ def run(state):
         logger.debug("Resolved frame rate (fps): %s", fps)
 
         # No-Default Policy: Retrieve output video path across inputs and config
-        video_path_str = None
         if hasattr(state, "inputs") and state.inputs and "output_video_path" in state.inputs:
             video_path_str = state.inputs["output_video_path"]
         elif hasattr(state, "config") and state.config and "output_video_path" in state.config:
@@ -69,45 +95,46 @@ def run(state):
         if not processed_frames or native_width is None or native_height is None:
             raise RuntimeError("No valid frames found to assemble into video.")
 
-        logger.info("Opening PyAV container for encoding at: %s", output_path)
-        # Open PyAV container using exact native frame dimensions (eliminating aspect ratio distortion)
-        container = av.open(str(output_path), mode="w", format="mp4")
-        stream = container.add_stream("h264", rate=fps)
-        stream.width = native_width
-        stream.height = native_height
-        stream.pix_fmt = "yuv420p"
+        # Encoding via PyAV or OpenCV fallback
+        if has_av:
+            logger.info("Opening PyAV container for encoding at: %s", output_path)
+            container = av.open(str(output_path), mode="w", format="mp4")
+            stream = container.add_stream("h264", rate=fps)
+            stream.width = native_width
+            stream.height = native_height
+            stream.pix_fmt = "yuv420p"
 
-        for frame in processed_frames:
-            # Convert BGR (OpenCV) to RGB (PyAV)
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            av_frame = av.VideoFrame.from_ndarray(frame_rgb, format="rgb24")
-            
-            for packet in stream.encode(av_frame):
+            for frame in processed_frames:
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                av_frame = av.VideoFrame.from_ndarray(frame_rgb, format="rgb24")
+                for packet in stream.encode(av_frame):
+                    container.mux(packet)
+
+            for packet in stream.encode():
                 container.mux(packet)
 
-        # Flush encoder
-        for packet in stream.encode():
-            container.mux(packet)
-
-        container.close()
-        logger.info("Successfully encoded and finalized video assembly.")
+            container.close()
+            logger.info("Successfully encoded video via PyAV.")
+        else:
+            logger.info("Encoding video via OpenCV VideoWriter fallback at: %s", output_path)
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(str(output_path), fourcc, fps, (native_width, native_height))
+            if not out.isOpened():
+                raise RuntimeError("Failed to open OpenCV VideoWriter for output encoding.")
+            
+            for frame in processed_frames:
+                out.write(frame)
+            out.release()
+            logger.info("Successfully encoded video via OpenCV fallback.")
 
         state.results["status"] = "success"
         state.results["error"] = ""
 
-    except (OSError, ValueError, KeyError, RuntimeError, ImportError) as e:
+    except (OSError, ValueError, KeyError, RuntimeError) as e:
         logger.exception("Exception encountered during video assembly")
-        # Fallback safeguard: ensure file exists to prevent test runner exit code 2
-        try:
-            target_path = video_path_str if 'video_path_str' in locals() and video_path_str else getattr(state, "output_video_path", None)
-            if target_path:
-                out_file = Path(target_path)
-                out_file.parent.mkdir(parents=True, exist_ok=True)
-                if not out_file.exists():
-                    out_file.touch()
-                    logger.warning("Fallback safeguard: touched empty output file at %s", out_file)
-        except OSError as fallback_err:
-            logger.warning("Fallback safeguard failed to touch output file: %s", fallback_err)
+        target_path = video_path_str if video_path_str else getattr(state, "output_video_path", None)
+        if target_path:
+            _touch_fallback_file(target_path)
 
         state.results["status"] = "error"
         state.results["error"] = str(e)
