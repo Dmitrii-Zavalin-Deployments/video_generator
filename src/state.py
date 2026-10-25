@@ -1,7 +1,7 @@
 # src/state.py
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class State:
         self.results = {
             "status": "pending",
             "error": "",
-            "date_time": datetime.now(timezone.utc).isoformat()
+            "date_time": datetime.now(UTC).isoformat()
         }
 
         self.base_dir = Path(input_output_folder)
@@ -30,7 +30,7 @@ class State:
 
     def to_output_json(self):
         # Refresh date_time to reflect the precise moment output json is compiled/written
-        self.results["date_time"] = datetime.now(timezone.utc).isoformat()
+        self.results["date_time"] = datetime.now(UTC).isoformat()
         logger.debug("Compiled output JSON structure. Current status: %s", self.results.get("status"))
         return {
             "inputs": self.inputs,
